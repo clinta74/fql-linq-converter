@@ -188,12 +188,19 @@ namespace FQL.Filters
         {
             string[] properties = property.Split('.');
 
+            try
+            {
             return properties.Aggregate(new Tuple<Expression, Type>(parameter, parameter.Type), (acc, next) =>
                 {
                     var expression = Expression.MakeMemberAccess(acc.Item1, acc.Item2.GetProperty(next));
 
                     return new Tuple<Expression, Type>(expression, expression.Type);
                 }).Item1;
+            }
+            catch (ArgumentNullException)
+            {
+                throw new ArgumentException($"Property {property} could not be found in object {parameter.Type.ToString()}");
+            }
         }
 
         /// <summary>
