@@ -26,11 +26,11 @@ namespace FQL.Filters
 
                     switch (item.Operation)
                     {
-                        case OperationTypes.Eq:
+                        case OperationTypes.EQ:
                             action = builder.BuildEquals;
                             break;
 
-                        case OperationTypes.NEq:
+                        case OperationTypes.NEQ:
                             action = builder.BuildNotEquals;
                             break;
 
@@ -50,15 +50,15 @@ namespace FQL.Filters
                             action = builder.BuildLessThanOrEquals;
                             break;
 
-                        case OperationTypes.Contains:
+                        case OperationTypes.CONTAINS:
                             action = builder.BuildContains;
                             break;
 
-                        case OperationTypes.StartsWith:
+                        case OperationTypes.STARTS:
                             action = builder.BuildStartsWith;
                             break;
 
-                        case OperationTypes.EndsWith:
+                        case OperationTypes.ENDS:
                             action = builder.BuildEndsWith;
                             break;
 

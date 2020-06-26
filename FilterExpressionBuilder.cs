@@ -17,7 +17,7 @@ namespace FQL.Filters
         private FilterBuilderGroup<TModel> currentGroup;
         private ParameterExpression parameter;
 
-        public FilterExpressionBuilder(LogicTypes logicType = LogicTypes.And)
+        public FilterExpressionBuilder(LogicTypes logicType = LogicTypes.AND)
         {
             currentGroup = new FilterBuilderGroup<TModel>(logicType, null);
             parameter = Expression.Parameter(modelType, "model");

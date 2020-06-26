@@ -23,7 +23,7 @@ namespace FQL.Filters
         /// <param name="parent">Parent of this group.</param>
         public FilterBuilderGroup(LogicTypes logicType, FilterBuilderGroup<TModel> parent)
         {
-            if (logicType == LogicTypes.Not)
+            if (logicType == LogicTypes.NOT)
             {
                 throw new InvalidOperationException("Cannot group filters using 'not' logic.");
             }
@@ -61,7 +61,7 @@ namespace FQL.Filters
                 return null;
             }
 
-            var joinFn = logicType == LogicTypes.And ? (Func<Expression, Expression, BinaryExpression>)
+            var joinFn = logicType == LogicTypes.AND ? (Func<Expression, Expression, BinaryExpression>)
                 Expression.AndAlso :
                 Expression.OrElse;
 
