@@ -8,6 +8,6 @@ namespace FQL.Filters.Models
     {
         public LogicTypes Logic { get; set; }
         public string Field { get; set; }
-        public List<FilterItem> FilterItems { get; set; }
+        public ICollection<FilterItem> FilterItems { get; set; }
     }
 }
