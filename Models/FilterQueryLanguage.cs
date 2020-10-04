@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FQL.Filters.Models
+namespace FQL.Filters.Linq.Models
 {
     [Serializable]
     public class FilterQueryLanguage

@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FQL.Filters")]
+[assembly: AssemblyTitle("FQL.Filters.Linq")]
 [assembly: AssemblyDescription("FQL to Linq Expression converter")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("FQL.Filters")]
+[assembly: AssemblyProduct("FQL.Filters.Linq")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

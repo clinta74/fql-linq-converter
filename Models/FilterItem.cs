@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FQL.Filters.Models
+namespace FQL.Filters.Linq.Models
 {
     [Serializable]
     public class FilterItem
