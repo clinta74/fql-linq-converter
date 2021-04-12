@@ -172,7 +172,7 @@ namespace FQL.Filters.Linq
 
             var left = GetPropertyExpression(property);
             var propType = (left as MemberExpression).Type;
-            var right = valueIsProperty ? GetPropertyExpression(value) : Expression.Constant(Convert.ChangeType(value, propType), propType);
+            var right = valueIsProperty ? GetPropertyExpression(value) : Expression.Constant(propType.IsEnum ? Enum.Parse(propType, value, true) : Convert.ChangeType(value, propType), propType);
 
             var expression = joinFn(left, right);
 
