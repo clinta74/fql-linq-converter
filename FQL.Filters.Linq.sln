@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FQL.Filter.Linq.Tests", "FQL.Filter.Linq.Tests\FQL.Filter.Linq.Tests.csproj", "{A7A5DADD-C079-447C-A066-82A5847907A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FQL.Filters.Linq.Tests", "FQL.Filters.Linq.Tests\FQL.Filters.Linq.Tests.csproj", "{A7A5DADD-C079-447C-A066-82A5847907A7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FQL.Filters.Linq", "FQL.Filters.Linq\FQL.Filters.Linq.csproj", "{3EA47A0B-DC1D-4C08-9406-9C2BCB135B8C}"
 EndProject
