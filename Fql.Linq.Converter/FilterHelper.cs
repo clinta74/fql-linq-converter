@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Fql.Filters.Linq.Models;
+using Fql.Linq.Converter.Models;
 
-namespace Fql.Filters.Linq
+namespace Fql.Linq.Converter
 {
     public static class FilterHelper
     {

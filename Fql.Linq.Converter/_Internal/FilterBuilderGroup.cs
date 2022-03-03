@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Fql.Filters.Linq
+namespace Fql.Linq.Converter
 {
     /// <summary>
     /// Represents multiple steps in the filter builder.

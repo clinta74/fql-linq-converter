@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Fql.Filters.Linq
+namespace Fql.Linq.Converter
 {
     /// <summary>
     /// Provides required methods for implementing a filtering expression builder.

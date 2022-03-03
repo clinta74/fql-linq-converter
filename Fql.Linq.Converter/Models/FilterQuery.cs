@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Fql.Filters.Linq.Models
+namespace Fql.Linq.Converter.Models
 {
     [Serializable]
     public class FilterQuery

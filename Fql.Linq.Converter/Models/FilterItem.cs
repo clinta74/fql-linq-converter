@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fql.Filters.Linq.Models
+namespace Fql.Linq.Converter.Models
 {
     [Serializable]
     public class FilterItem

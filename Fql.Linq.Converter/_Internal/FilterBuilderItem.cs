@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Fql.Filters.Linq
+namespace Fql.Linq.Converter
 {
     /// <summary>
     /// Represents a single step in the filter builder.
