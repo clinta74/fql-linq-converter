@@ -1,15 +1,15 @@
-using FQL.Filters.Linq;
-using FQL.Filters.Linq.Models;
+using Fql.Filters.Linq;
+using Fql.Filters.Linq.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace FQL.Filter.Linq.Tests
+namespace Fql.Filter.Linq.Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class FqlHelperTests
     {
         [TestMethod]
-        public void TestExpression()
+        public void TestCovert()
         {
             // arrange
             FilterQueryLanguage fql = new FilterQueryLanguage

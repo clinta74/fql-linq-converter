@@ -1,15 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Version>6.0.3</Version>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>netstandard2.1</TargetFramework>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<ItemGroup>
 	</ItemGroup>
-	<PropertyGroup>
-		<PackageId>NuGet.Workflow</PackageId>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/acraven/blog-nuget-workflow-github-actions</RepositoryUrl>
-	</PropertyGroup>
 </Project>

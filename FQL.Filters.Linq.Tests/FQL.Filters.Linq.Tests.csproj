@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FQL.Filters.Linq\FQL.Filters.Linq.csproj" />
+    <ProjectReference Include="..\Fql.Filters.Linq\Fql.Filters.Linq.csproj" />
   </ItemGroup>
 
 </Project>

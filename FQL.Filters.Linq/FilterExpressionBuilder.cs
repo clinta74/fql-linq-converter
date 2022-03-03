@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FQL.Filters.Linq
+namespace Fql.Filters.Linq
 {
     /// <summary>
     /// Provides an interface for building a filter expression in a number of build steps.
