@@ -1,5 +1,5 @@
 # Filter Query Langauage to LINQ converter.
-Version 6.0.3 for netstandard 2.0
+Version 8.0.0 for net 8.0
 
 Provides helper meathod to convert Filter Query Langauge object to a LINQ expression.  This expression can then be passed to a IQuerable.Where() 
 to provide filtering of the object.  The expression tree is built in a way to be type safe based upon the object Type passed into the convert logic.
