@@ -1,10 +1,11 @@
 # Filter Query Langauage to LINQ converter.
-Version 9.1.0 supporting .NET 6, 7, 8, 9 and .NET Standard 2.1
+Version 9.2.0 supporting .NET 6, 7, 8, 9 and .NET Standard 2.1
 
 Provides helper method to convert Filter Query Language object to a LINQ expression. This expression can then be passed to an IQueryable.Where() 
 to provide filtering of the object. The expression tree is built in a way to be type safe based upon the object Type passed into the convert logic.
 
 **New in v9.1.0:** Optional sorting and pagination support!
+**New in v9.2.0:** NCONTAINS operation and validation helpers!
 
 ## Example for web api
 
@@ -176,18 +177,75 @@ OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;
 - `GTE` - Greater Than or Equal
 - `LTE` - Less Than or Equal
 - `CONTAINS` - String contains (case-sensitive)
+- `NCONTAINS` - String does not contain (case-sensitive)
 - `STARTS` - String starts with
 - `ENDS` - String ends with
 
+## Validation
+
+Validate your FQL before execution to catch errors early:
+
+``` c#
+[HttpPost]
+public IActionResult Post([FromBody] FilterQueryLanguage fql)
+{
+    // Validate the FQL against your model
+    var validation = FqlValidator.Validate<User>(fql);
+    
+    if (!validation.IsValid)
+    {
+        return BadRequest(new 
+        { 
+            errors = validation.Errors,
+            warnings = validation.Warnings
+        });
+    }
+    
+    // Log warnings but continue processing
+    if (validation.Warnings.Any())
+    {
+        _logger.LogWarning($"FQL validation warnings: {string.Join(", ", validation.Warnings)}");
+    }
+    
+    var results = GetUsers().ApplyFql(fql).ToList();
+    return Ok(results);
+}
+```
+
+### What Gets Validated
+
+The validator checks:
+- **Field names** exist on your model (including nested properties like `User.Address.City`)
+- **Operations** are valid and defined in the `OperationTypes` enum
+- **Sort fields** are valid properties
+- **Pagination** values are within reasonable bounds (page >= 1, pageSize >= 1)
+
+Validation returns both **errors** (which make `IsValid = false`) and **warnings** (informational, doesn't affect `IsValid`):
+- **Errors:** Invalid field names, unsupported operations, invalid pagination
+- **Warnings:** Empty filter values, string operations on non-string fields, very large page sizes
+
+### Field Name Conversion
+
+If your FQL uses different casing than your model, apply a converter:
+
+``` c#
+// FQL has camelCase fields, model has PascalCase properties
+var validation = FqlValidator.Validate<User>(fql, FilterHelper.ToPascalCase);
+```
+
 ## Backward Compatibility
 
-All existing code continues to work. The sorting and pagination features are **completely optional**:
+All existing code continues to work. The sorting, pagination, and validation features are **completely optional**:
 
 ``` c#
 // Old way - still works
 var expression = FilterHelper.Convert<User>(fql);
 var results = GetUsers().Where(expression).ToList();
 
-// New way - with optional sorting/pagination
-var results = GetUsers().ApplyFql(fql).ToList();
+// New way - with optional features
+var validation = FqlValidator.Validate<User>(fql);
+if (validation.IsValid)
+{
+    var results = GetUsers().ApplyFql(fql).ToList();
+}
 ```

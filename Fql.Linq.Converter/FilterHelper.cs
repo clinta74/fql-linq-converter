@@ -64,17 +64,19 @@ public static class FilterHelper
 
                     case OperationTypes.LTE:
                         action = builder.BuildLessThanOrEquals;
-                        break;
+                    break;
 
-                    case OperationTypes.CONTAINS:
-                        action = builder.BuildContains;
-                        break;
+                case OperationTypes.CONTAINS:
+                    action = builder.BuildContains;
+                    break;
 
-                    case OperationTypes.STARTS:
-                        action = builder.BuildStartsWith;
-                        break;
+                case OperationTypes.NCONTAINS:
+                    action = builder.BuildNotContains;
+                    break;
 
-                    case OperationTypes.ENDS:
+                case OperationTypes.STARTS:
+                    action = builder.BuildStartsWith;
+                    break;                    case OperationTypes.ENDS:
                         action = builder.BuildEndsWith;
                         break;
 

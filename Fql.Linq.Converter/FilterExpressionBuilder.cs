@@ -102,26 +102,37 @@ public class FilterExpressionBuilder<TModel> : IFilterExpressionBuilder<TModel>
         public void BuildLessThanOrEquals(string property, string value, bool valueIsProperty = false)
         {
             Build(property, value, valueIsProperty, (l, r) => Expression.LessThanOrEqual(l, r));
-        }
+    }
 
-        /// <summary>
-        /// Builds a statement that checks whether the property collection contains a value.
-        /// </summary>
-        /// <param name="property">Name of the model property.</param>
-        /// <param name="value">Value to compare to.</param>
-        /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
-        public void BuildContains(string property, string value, bool valueIsProperty = false)
-        {
-            Build(property, value, valueIsProperty, (l, r) => GetStringMethod("Contains", l, r));
-        }
+    /// <summary>
+    /// Builds a statement that checks whether the property collection contains a value.
+    /// </summary>
+    /// <param name="property">Name of the model property.</param>
+    /// <param name="value">Value to compare to.</param>
+    /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
+    public void BuildContains(string property, string value, bool valueIsProperty = false)
+    {
+        Build(property, value, valueIsProperty, (l, r) => GetStringMethod("Contains", l, r));
+    }
 
-        /// <summary>
-        /// Builds a string comparison that checks if the property starts with the provided value.
-        /// </summary>
-        /// <param name="property">Name of the model property.</param>
-        /// <param name="value">Value to compare to.</param>
-        /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
-        public void BuildStartsWith(string property, string value, bool valueIsProperty = false)
+    /// <summary>
+    /// Builds a statement that checks whether the property collection does not contain a value.
+    /// </summary>
+    /// <param name="property">Name of the model property.</param>
+    /// <param name="value">Value to compare to.</param>
+    /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
+    public void BuildNotContains(string property, string value, bool valueIsProperty = false)
+    {
+        Build(property, value, valueIsProperty, (l, r) => Expression.Not(GetStringMethod("Contains", l, r)));
+    }
+
+    /// <summary>
+    /// Builds a string comparison that checks if the property starts with the provided value.
+    /// </summary>
+    /// <param name="property">Name of the model property.</param>
+    /// <param name="value">Value to compare to.</param>
+    /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
+    public void BuildStartsWith(string property, string value, bool valueIsProperty = false)
         {
             Build(property, value, valueIsProperty, (l, r) => GetStringMethod("StartsWith", l, r));
         }

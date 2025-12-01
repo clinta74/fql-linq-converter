@@ -307,6 +307,32 @@ public class FqlHelperTests
         Assert.IsTrue(exp.Body.ToString().Contains("Test"));
     }
 
+    [TestMethod]
+    public void Test_NotContains_Operation()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            FilterQueries = new[]
+            {
+                new FilterQuery
+                {
+                    Field = "Name",
+                    FilterItems = new[]
+                    {
+                        new FilterItem { Operation = OperationTypes.NCONTAINS, Value = "Test" }
+                    }
+                }
+            },
+            Logic = LogicTypes.AND
+        };
+
+        var exp = FilterHelper.Convert<TestModel>(fql);
+
+        Assert.IsTrue(exp.Body.ToString().Contains("Not"));
+        Assert.IsTrue(exp.Body.ToString().Contains("Contains"));
+        Assert.IsTrue(exp.Body.ToString().Contains("Test"));
+    }
+
     #endregion
 
     #region Logic Type Tests
@@ -454,6 +480,31 @@ public class FqlHelperTests
 
         Assert.IsTrue(compiled(new TestModel(42, "Test")));
         Assert.IsFalse(compiled(new TestModel(1, "Test")));
+    }
+
+    [TestMethod]
+    public void Test_NotContains_WithData()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            FilterQueries = new[]
+            {
+                new FilterQuery
+                {
+                    Field = "Name",
+                    FilterItems = new[] { new FilterItem { Operation = OperationTypes.NCONTAINS, Value = "Admin" } }
+                }
+            },
+            Logic = LogicTypes.AND
+        };
+
+        var exp = FilterHelper.Convert<TestModel>(fql);
+        var compiled = exp.Compile();
+
+        Assert.IsTrue(compiled(new TestModel(1, "User")));
+        Assert.IsTrue(compiled(new TestModel(2, "Guest")));
+        Assert.IsFalse(compiled(new TestModel(3, "Admin")));
+        Assert.IsFalse(compiled(new TestModel(4, "SuperAdmin")));
     }
 
     [TestMethod]
@@ -639,26 +690,6 @@ public class FqlHelperTests
         };
 
         FilterHelper.Convert<TestModelWithNested>(fql);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(NotImplementedException))]
-    public void Test_UnimplementedOperation_ThrowsException()
-    {
-        var fql = new FilterQueryLanguage
-        {
-            FilterQueries = new[]
-            {
-                new FilterQuery
-                {
-                    Field = "Name",
-                    FilterItems = new[] { new FilterItem { Operation = OperationTypes.NCONTAINS, Value = "Test" } }
-                }
-            },
-            Logic = LogicTypes.AND
-        };
-
-        FilterHelper.Convert<TestModel>(fql);
     }
 
     #endregion
