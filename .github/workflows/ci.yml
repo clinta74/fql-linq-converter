@@ -25,14 +25,15 @@ jobs:
       - name: Build
         run: dotnet build Fql.Linq.Converter/Fql.Linq.Converter.csproj --configuration Release --no-restore
       
-      - name: Test
+      - name: Build Tests
+        run: dotnet build Fql.Linq.Converter.Tests/Fql.Ling.Converter.Tests.csproj --configuration Release --no-restore
+      
+      - name: Run Tests
         run: dotnet test Fql.Linq.Converter.Tests/Fql.Ling.Converter.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
       
-      - name: Publish Test Results
-        uses: dorny/test-reporter@v1
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Test Results
-          path: '**/test-results.trx'
-          reporter: dotnet-trx
-          fail-on-error: true
+          name: test-results
+          path: '**/TestResults/*.trx'
