@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Fql.Linq.Converter
+namespace Fql.Linq.Converter;
+
+/// <summary>
+/// Provides required methods for implementing a filtering expression builder.
+/// </summary>
+/// <typeparam name="TModel">Type of model to filter on.</typeparam>
+public interface IFilterExpressionBuilder<TModel>
+    where TModel : class
 {
-    /// <summary>
-    /// Provides required methods for implementing a filtering expression builder.
-    /// </summary>
-    /// <typeparam name="TModel">Type of model to filter on.</typeparam>
-    public interface IFilterExpressionBuilder<TModel>
-        where TModel : class
-    {
         /// <summary>
         /// Gets an expression representing the result of building together filter statements.
         /// </summary>
@@ -93,9 +93,8 @@ namespace Fql.Linq.Converter
         /// </summary>
         void BeginGroup(LogicTypes logicType);
 
-        /// <summary>
-        /// Ends the innermost grouping of statements.
-        /// </summary>
-        void EndGroup();
-    }
+    /// <summary>
+    /// Ends the innermost grouping of statements.
+    /// </summary>
+    void EndGroup();
 }

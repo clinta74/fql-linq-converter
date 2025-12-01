@@ -3,25 +3,25 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Fql.Linq.Converter
+namespace Fql.Linq.Converter;
+
+/// <summary>
+/// Provides an interface for building a filter expression in a number of build steps.
+/// </summary>
+/// <typeparam name="TModel">Model type.</typeparam>
+public class FilterExpressionBuilder<TModel> : IFilterExpressionBuilder<TModel>
+    where TModel : class
 {
-    /// <summary>
-    /// Provides an interface for building a filter expression in a number of build steps.
-    /// </summary>
-    /// <typeparam name="TModel">Model type.</typeparam>
-    public class FilterExpressionBuilder<TModel> : IFilterExpressionBuilder<TModel>
-        where TModel : class
+    private static readonly Type modelType = typeof(TModel);
+
+    private FilterBuilderGroup<TModel> currentGroup;
+    private ParameterExpression parameter;
+
+    public FilterExpressionBuilder(LogicTypes logicType = LogicTypes.AND)
     {
-        private static readonly Type modelType = typeof(TModel);
-
-        private FilterBuilderGroup<TModel> currentGroup;
-        private ParameterExpression parameter;
-
-        public FilterExpressionBuilder(LogicTypes logicType = LogicTypes.AND)
-        {
-            currentGroup = new FilterBuilderGroup<TModel>(logicType, null);
-            parameter = Expression.Parameter(modelType, "model");
-        }
+        currentGroup = new FilterBuilderGroup<TModel>(logicType, null);
+        parameter = Expression.Parameter(modelType, "model");
+    }
 
         /// <summary>
         /// Gets an expression representing the result of building together filter statements.
@@ -153,33 +153,39 @@ namespace Fql.Linq.Converter
         /// </summary>
         public void EndGroup()
         {
-            currentGroup = currentGroup.Parent;
+            if (currentGroup.Parent != null)
+            {
+                currentGroup = currentGroup.Parent;
+            }
         }
 
         #region Helper Methods
 
-        /// <summary>
-        /// Builds an expression using the provided parameters.
-        /// </summary>
-        /// <param name="property">Name of the model property.</param>
-        /// <param name="value">Value to compare to.</param>
-        /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
-        /// <param name="joinFn">Function used to join the resulting expressions with.</param>
-        private void Build(string property, string value, bool valueIsProperty, Func<Expression, Expression, Expression> joinFn)
-        {
-            if (String.IsNullOrWhiteSpace(property)) throw new ArgumentNullException("property");
-            if (value == null) throw new ArgumentNullException("value");
+    /// <summary>
+    /// Builds an expression using the provided parameters.
+    /// </summary>
+    /// <param name="property">Name of the model property.</param>
+    /// <param name="value">Value to compare to.</param>
+    /// <param name="valueIsProperty">Whether or not the value parameter represents a property.</param>
+    /// <param name="joinFn">Function used to join the resulting expressions with.</param>
+    private void Build(string property, string value, bool valueIsProperty, Func<Expression, Expression, Expression> joinFn)
+    {
+#if NET8_0_OR_GREATER
+        ArgumentException.ThrowIfNullOrWhiteSpace(property);
+        ArgumentNullException.ThrowIfNull(value);
+#else
+        if (string.IsNullOrWhiteSpace(property)) throw new ArgumentNullException(nameof(property));
+        if (value == null) throw new ArgumentNullException(nameof(value));
+#endif
 
-            var left = GetPropertyExpression(property);
-            var propType = (left as MemberExpression).Type;
-            var right = valueIsProperty ? GetPropertyExpression(value) : Expression.Constant(propType.IsEnum ? Enum.Parse(propType, value, true) : Convert.ChangeType(value, propType), propType);
+        var left = GetPropertyExpression(property);
+        var propType = (left as MemberExpression)!.Type;
+        var right = valueIsProperty ? GetPropertyExpression(value) : Expression.Constant(propType.IsEnum ? Enum.Parse(propType, value, true) : Convert.ChangeType(value, propType), propType);
 
-            var expression = joinFn(left, right);
+        var expression = joinFn(left, right);
 
-            currentGroup.Add(new FilterBuilderItem<TModel>(expression));
-        }
-
-        /// <summary>
+        currentGroup.Add(new FilterBuilderItem<TModel>(expression));
+    }        /// <summary>
         /// Returns an expression representing the named property.
         /// </summary>
         /// <param name="property">Property name/path.</param>
@@ -192,37 +198,37 @@ namespace Fql.Linq.Converter
             {
             return properties.Aggregate(new Tuple<Expression, Type>(parameter, parameter.Type), (acc, next) =>
                 {
-                    var expression = Expression.MakeMemberAccess(acc.Item1, acc.Item2.GetProperty(next));
+                    var propertyInfo = acc.Item2.GetProperty(next) ?? throw new ArgumentException($"Property {next} could not be found in type {acc.Item2}");
+                    var expression = Expression.MakeMemberAccess(acc.Item1, propertyInfo);
 
                     return new Tuple<Expression, Type>(expression, expression.Type);
                 }).Item1;
             }
             catch (ArgumentNullException)
             {
-                throw new ArgumentException($"Property {property} could not be found in object {parameter.Type.ToString()}");
+                throw new ArgumentException($"Property {property} could not be found in object {parameter.Type}");
             }
         }
 
-        /// <summary>
-        /// Gets a string method to call.
-        /// </summary>
-        /// <param name="methodName">String method name.</param>
-        /// <param name="instance">String instance.</param>
-        /// <param name="arguments">Arguments to supply to the method.</param>
-        /// <returns>Method call expression.</returns>
-        private Expression GetStringMethod(string methodName, Expression instance, params Expression[] arguments)
+    /// <summary>
+    /// Gets a string method to call.
+    /// </summary>
+    /// <param name="methodName">String method name.</param>
+    /// <param name="instance">String instance.</param>
+    /// <param name="arguments">Arguments to supply to the method.</param>
+    /// <returns>Method call expression.</returns>
+    private Expression GetStringMethod(string methodName, Expression instance, params Expression[] arguments)
+    {
+        Type[] typeArgs = arguments.Select(a => typeof(string)).ToArray();
+        MethodInfo? method = typeof(string).GetMethod(methodName, typeArgs);
+
+        if (method == null)
         {
-            Type[] typeArgs = arguments.Select(a => typeof(string)).ToArray();
-            MethodInfo method = typeof(string).GetMethod(methodName, typeArgs);
-
-            if (method == null)
-            {
-                throw new InvalidOperationException(String.Format("Could not find method '{0}' on type string.", methodName));
-            }
-
-            return Expression.Call(instance, method, arguments);
+            throw new InvalidOperationException($"Could not find method '{methodName}' on type string.");
         }
 
-        #endregion
+        return Expression.Call(instance, method, arguments);
     }
+
+    #endregion
 }
