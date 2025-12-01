@@ -731,6 +731,283 @@ public class FqlHelperTests
     #endregion
 }
 
+#region Sorting and Pagination Tests
+
+[TestClass]
+public class FqlSortingAndPaginationTests
+{
+    private IQueryable<TestModel> GetTestData()
+    {
+        return new[]
+        {
+            new TestModel(3, "Charlie"),
+            new TestModel(1, "Alice"),
+            new TestModel(5, "Eve"),
+            new TestModel(2, "Bob"),
+            new TestModel(4, "David")
+        }.AsQueryable();
+    }
+
+    [TestMethod]
+    public void Test_Sorting_SingleField_Ascending()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "Id", Direction = SortDirection.Ascending }
+            }
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(5, results.Count);
+        Assert.AreEqual(1, results[0].Id);
+        Assert.AreEqual(2, results[1].Id);
+        Assert.AreEqual(5, results[4].Id);
+    }
+
+    [TestMethod]
+    public void Test_Sorting_SingleField_Descending()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "Name", Direction = SortDirection.Descending }
+            }
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual("Eve", results[0].Name);
+        Assert.AreEqual("David", results[1].Name);
+        Assert.AreEqual("Alice", results[4].Name);
+    }
+
+    [TestMethod]
+    public void Test_Sorting_MultipleFields()
+    {
+        var data = new[]
+        {
+            new TestModelWithTypes { IsActive = true, Price = 10.0m },
+            new TestModelWithTypes { IsActive = false, Price = 20.0m },
+            new TestModelWithTypes { IsActive = true, Price = 5.0m },
+            new TestModelWithTypes { IsActive = false, Price = 15.0m }
+        }.AsQueryable();
+
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "IsActive", Direction = SortDirection.Descending },
+                new SortDescriptor { Field = "Price", Direction = SortDirection.Ascending }
+            }
+        };
+
+        var results = data.ApplyFql(fql).ToList();
+
+        Assert.IsTrue(results[0].IsActive);
+        Assert.AreEqual(5.0m, results[0].Price);
+        Assert.IsTrue(results[1].IsActive);
+        Assert.AreEqual(10.0m, results[1].Price);
+        Assert.IsFalse(results[2].IsActive);
+        Assert.AreEqual(15.0m, results[2].Price);
+    }
+
+    [TestMethod]
+    public void Test_Sorting_NestedProperty()
+    {
+        var data = new[]
+        {
+            new TestModelWithNested { Id = 1, Address = new Address { City = "Seattle" } },
+            new TestModelWithNested { Id = 2, Address = new Address { City = "Austin" } },
+            new TestModelWithNested { Id = 3, Address = new Address { City = "Portland" } }
+        }.AsQueryable();
+
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "Address.City", Direction = SortDirection.Ascending }
+            }
+        };
+
+        var results = data.ApplyFql(fql).ToList();
+
+        Assert.AreEqual("Austin", results[0].Address.City);
+        Assert.AreEqual("Portland", results[1].Address.City);
+        Assert.AreEqual("Seattle", results[2].Address.City);
+    }
+
+    [TestMethod]
+    public void Test_Pagination_FirstPage()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Pagination = new PaginationOptions { Page = 1, PageSize = 2 }
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(2, results.Count);
+    }
+
+    [TestMethod]
+    public void Test_Pagination_SecondPage()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[] { new SortDescriptor { Field = "Id", Direction = SortDirection.Ascending } },
+            Pagination = new PaginationOptions { Page = 2, PageSize = 2 }
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(2, results.Count);
+        Assert.AreEqual(3, results[0].Id);
+        Assert.AreEqual(4, results[1].Id);
+    }
+
+    [TestMethod]
+    public void Test_Pagination_LastPage_Partial()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[] { new SortDescriptor { Field = "Id", Direction = SortDirection.Ascending } },
+            Pagination = new PaginationOptions { Page = 3, PageSize = 2 }
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(1, results.Count);
+        Assert.AreEqual(5, results[0].Id);
+    }
+
+    [TestMethod]
+    public void Test_FilteringSortingPagination_Combined()
+    {
+        var data = new[]
+        {
+            new TestModel(1, "Alice"),
+            new TestModel(2, "Bob"),
+            new TestModel(3, "Anna"),
+            new TestModel(4, "Andrew"),
+            new TestModel(5, "Amy")
+        }.AsQueryable();
+
+        var fql = new FilterQueryLanguage
+        {
+            FilterQueries = new[]
+            {
+                new FilterQuery
+                {
+                    Field = "Name",
+                    FilterItems = new[]
+                    {
+                        new FilterItem { Operation = OperationTypes.STARTS, Value = "A" }
+                    }
+                }
+            },
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "Name", Direction = SortDirection.Ascending }
+            },
+            Pagination = new PaginationOptions { Page = 1, PageSize = 2 }
+        };
+
+        var results = data.ApplyFql(fql).ToList();
+
+        Assert.AreEqual(2, results.Count);
+        Assert.AreEqual("Alice", results[0].Name);
+        Assert.AreEqual("Amy", results[1].Name);
+    }
+
+    [TestMethod]
+    public void Test_EmptySorting_DoesNothing()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = Array.Empty<SortDescriptor>()
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(5, results.Count);
+    }
+
+    [TestMethod]
+    public void Test_NullSorting_DoesNothing()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = null
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(5, results.Count);
+    }
+
+    [TestMethod]
+    public void Test_NullPagination_ReturnsAll()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Pagination = null
+        };
+
+        var results = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(5, results.Count);
+    }
+
+    [TestMethod]
+    public void Test_BackwardCompatibility_FilterOnly()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            FilterQueries = new[]
+            {
+                new FilterQuery
+                {
+                    Field = "Id",
+                    FilterItems = new[]
+                    {
+                        new FilterItem { Operation = OperationTypes.GT, Value = "2" }
+                    }
+                }
+            }
+        };
+
+        // Old way still works
+        var expressionResults = GetTestData().Where(FilterHelper.Convert<TestModel>(fql)).ToList();
+        
+        // New way also works
+        var applyResults = GetTestData().ApplyFql(fql).ToList();
+
+        Assert.AreEqual(3, expressionResults.Count);
+        Assert.AreEqual(3, applyResults.Count);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void Test_Sorting_InvalidProperty_ThrowsException()
+    {
+        var fql = new FilterQueryLanguage
+        {
+            Sorting = new[]
+            {
+                new SortDescriptor { Field = "NonExistentField", Direction = SortDirection.Ascending }
+            }
+        };
+
+        GetTestData().ApplyFql(fql).ToList();
+    }
+}
+
+#endregion
+
 public record TestModel(int Id, string Name);
 
 public class TestModelWithTypes
