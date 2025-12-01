@@ -20,7 +20,9 @@ jobs:
           dotnet-version: 9.0.x
       
       - name: Restore dependencies
-        run: dotnet restore Fql.Linq.Converter/Fql.Linq.Converter.csproj
+        run: |
+          dotnet restore Fql.Linq.Converter/Fql.Linq.Converter.csproj
+          dotnet restore Fql.Linq.Converter.Tests/Fql.Ling.Converter.Tests.csproj
       
       - name: Build
         run: dotnet build Fql.Linq.Converter/Fql.Linq.Converter.csproj --configuration Release --no-restore
